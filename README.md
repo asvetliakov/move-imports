@@ -2,6 +2,10 @@
 
 VSCode move-imports Extension
 
+## How to Use
+
+Just move/rename folder in VSCode
+
 ## Features
 
 Automatically move/rename imports when you rename/move your project files
