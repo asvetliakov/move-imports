@@ -4,7 +4,7 @@ VSCode move-imports Extension
 
 ## How to Use
 
-Just move/rename folder in VSCode
+Just move/rename folder or file in VSCode
 
 ## Features
 
@@ -36,11 +36,8 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 0.0.3
 
