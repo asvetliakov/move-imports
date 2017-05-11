@@ -13,7 +13,7 @@ Automatically move/rename imports when you rename/move your project files
 * Seamlessly integrated into VSCode UI
 
 
-\!\[feature \]\(features.gif\)
+\!\[feature \]\(/features.gif\)
 
 ## Notice
 
