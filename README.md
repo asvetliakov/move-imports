@@ -27,8 +27,6 @@ Due to lack of VSCode API, this extension is checking files by checking content 
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
 * `move-imports.extensions`: Array of file extensions which will be handled by extension. Webpack users may add assets extensions (i.e. ```png, jpg, etc...```) here
 * `move-imports.excludedRegexp`: Regexp to exclude files/directories from reference replacing/indexing. Being matched against absolute file path
 * `move-imports.expressionReferences`: Array of call expressions to treat them as module reference. This includes ```require()``` and for example jest module mocks, such as ```jest.mock```
@@ -43,6 +41,10 @@ Calling out known issues can help limit users opening duplicate issues against y
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
+
+### 0.0.3
+
+Fix unable to apply reference edits due to wrong path
 
 ### 0.0.1
 

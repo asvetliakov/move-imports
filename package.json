@@ -2,7 +2,7 @@
   "name": "move-imports",
   "displayName": "move-imports",
   "description": "Automatically change relative paths of Typescript/Javascript imports",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "asvetliakov",
   "engines": {
     "vscode": "^1.12.0"

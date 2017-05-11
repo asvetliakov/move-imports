@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as nodePath from "path";
+import * as fs from "fs";
 import { Indexer, Reference } from './Indexer';
 import { DuplicateContentError } from './DuplicateContentError';
 import { Configuration } from './Configuration';
@@ -149,6 +150,11 @@ export class Plugin implements vscode.Disposable {
                         sortedReferences[ref.sourceFilePath].push(ref);
                     }
                     for (const filePath of Object.keys(sortedReferences)) {
+                        // We may rename directory and there are references inside this directory. In this case the filePath will be invalid
+                        // so just skip it. For these paths the new onDidCreate() event must come and they'll be handled
+                        if (!fs.existsSync(filePath)) {
+                            continue;
+                        }
                         const uri = vscode.Uri.file(filePath);
                         const edits = sortedReferences[filePath].map(ref => {
                             let newRelative = nodePath.relative(nodePath.dirname(ref.sourceFilePath),
