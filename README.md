@@ -39,6 +39,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 0.0.4
+
+Fix windows paths (#1)
+
 ### 0.0.3
 
 Fix unable to apply reference edits due to wrong path
