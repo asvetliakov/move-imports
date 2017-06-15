@@ -164,8 +164,36 @@ export class Plugin implements vscode.Disposable {
                         }
                         const uri = vscode.Uri.file(filePath);
                         const edits = sortedReferences[filePath].map(ref => {
-                            let newRelative = nodePath.relative(nodePath.dirname(ref.sourceFilePath),
-                                ref.hasExtensionInReference ? newPath : nodePath.join(nodePath.dirname(newPath), nodePath.basename(newPath, nodePath.extname(newPath))));
+                            // Pick the right path, here we can update reference to other files in moved path (true branch) 
+                            // or update reference in other files referenced to this moved path (false branch)
+                            const referenceToUpdatePath = ref.sourceFilePath === newPath ? ref.referenceFilePath : newPath;
+                            // Directory relative path
+                            const newRelativeToDirectory = nodePath.relative(nodePath.dirname(ref.sourceFilePath), nodePath.dirname(referenceToUpdatePath));
+                            // File relative path
+                            const newRelativeToFile = nodePath.relative(
+                                nodePath.dirname(ref.sourceFilePath),
+                                ref.hasExtensionInReference
+                                    ? newPath
+                                    : nodePath.join(nodePath.dirname(referenceToUpdatePath), nodePath.basename(referenceToUpdatePath, nodePath.extname(referenceToUpdatePath)))
+                            );
+
+                            let newRelative: string;
+                                
+                            if (ref.isDirectoryReference) {
+                                // Two cases:
+                                // 1. Move index.ext to new location
+                                // 2. Rename index.ext to new file - in this case the references need to be updated to include file name too
+                                if (nodePath.basename(referenceToUpdatePath, nodePath.extname(referenceToUpdatePath)) === "index") {
+                                    // case 1
+                                    newRelative = newRelativeToDirectory;
+                                } else {
+                                    // case 2
+                                    newRelative = newRelativeToFile;
+                                }
+                            } else {
+                                newRelative = newRelativeToFile;
+                            }
+                            
                             // If newRelative will point to the same directory then ./ will be dropped, add it again
                             if (!newRelative.startsWith("./") && !newRelative.startsWith("../")) {
                                 newRelative = `./${newRelative}`;

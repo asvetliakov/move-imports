@@ -23,6 +23,11 @@ export interface Reference {
      */
     hasExtensionInReference: boolean;
     /**
+     * True if reference is the reference to directory (i.e. import * a from "./dir").
+     * In this case the referenceFilePath will be directory + index.{ts, tsx, js, jsx} and this flag set to true
+     */
+    isDirectoryReference: boolean;
+    /**
      * Start position
      */
     start: LineAndCharacter;
@@ -123,7 +128,8 @@ export class Indexer {
                                 end: endLineAndCharacter,
                                 sourceFilePath: path,
                                 referenceFilePath: referencedPathInfo.path,
-                                hasExtensionInReference: referencedPathInfo.hasExtInPath
+                                hasExtensionInReference: referencedPathInfo.hasExtInPath,
+                                isDirectoryReference: referencedPathInfo.isDirectory
                             });
                         }
                     }
@@ -141,7 +147,8 @@ export class Indexer {
                                     end: reference.end,
                                     sourceFilePath: path,
                                     referenceFilePath: referencePathInfo.path,
-                                    hasExtensionInReference: referencePathInfo.hasExtInPath
+                                    hasExtensionInReference: referencePathInfo.hasExtInPath,
+                                    isDirectoryReference: referencePathInfo.isDirectory
                                 });
                             }
                         }
@@ -161,7 +168,8 @@ export class Indexer {
                                     end: reference.end,
                                     sourceFilePath: path,
                                     referenceFilePath: referencePathInfo.path,
-                                    hasExtensionInReference: referencePathInfo.hasExtInPath
+                                    hasExtensionInReference: referencePathInfo.hasExtInPath,
+                                    isDirectoryReference: referencePathInfo.isDirectory
                                 });
                             }
                         }
@@ -341,22 +349,37 @@ export class Indexer {
      * @param referencePath 
      * @returns 
      */
-    private getFullPathOfReferencedModule(fromPath: string, referencePath: string): { path: string, hasExtInPath: boolean } {
+    private getFullPathOfReferencedModule(fromPath: string, referencePath: string): { path: string, hasExtInPath: boolean, isDirectory: boolean } {
         let fullPath = nodePath.resolve(nodePath.dirname(fromPath), referencePath);
         const hasExtensionInPath = /\.\w+$/.test(fullPath);
+        let isDirectoryReference = false;
         if (!hasExtensionInPath) {
+            // Not specified extension, first check if it's a file
+            let hasFile = false;
             const tryExt = [".tsx", ".ts", ".jsx", ".js"];
             for (const ext of tryExt) {
                 if (fs.existsSync(fullPath + ext)) {
                     fullPath += ext;
+                    hasFile = true;
                     break;
+                }
+            }
+            if (!hasFile) {
+                // If no such file exist, try fullPath/index + [...tryExt]
+                const indexLikePath = nodePath.join(fullPath, "index");
+                for (const ext of tryExt) {
+                    if (fs.existsSync(indexLikePath + ext)) {
+                        fullPath = indexLikePath + ext;
+                        isDirectoryReference = true;
+                        break;
+                    }
                 }
             }
         }
         return {
             path: fullPath,
-            hasExtInPath: hasExtensionInPath
+            hasExtInPath: hasExtensionInPath,
+            isDirectory: isDirectoryReference
         };
     }    
-
 }
