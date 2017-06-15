@@ -76,7 +76,7 @@ export class ExcludeChecker {
      */
     public isFileExcluded(filePath: string): boolean {
         const relativePath = path.isAbsolute(filePath) ? path.relative(this.workspaceRoot, filePath) : filePath;
-        return micromatch.isMatch(filePath, this.excludeGlobs as any /* Wrong typings */, { matchBase: true });
+        return micromatch.isMatch(relativePath, this.excludeGlobs as any /* Wrong typings */, { matchBase: true });
     }
     
     /**
