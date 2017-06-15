@@ -226,6 +226,9 @@ export class Indexer {
                 }
             }
         }
+        // also push all references inside in update path. We may change move directory/file in few levels deep up/down and thus
+        // references need to be updated as well
+        references.push(...this.fileReferencesMap[newPath]);
         return references;
     }
     
