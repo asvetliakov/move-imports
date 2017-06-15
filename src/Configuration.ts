@@ -2,7 +2,9 @@
 export class Configuration {
     public extensions: string[] = ["tsx", "ts", "jsx", "js"];
     
-    public excludedRegexp?: string = undefined;
+    public excludeGlobs: string[] = ["node_modules"];
+    
+    public useGitIgnoreForExclude: boolean = true;
     
     public expressionReferences: string[] = ["require", "jest.mock", "jest.setMock", "jest.unmock", "jest.genMockFromModule"];
     

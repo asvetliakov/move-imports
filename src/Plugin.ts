@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import * as nodePath from "path";
 import * as fs from "fs";
+import * as path from "path";
 import { Indexer, Reference } from './Indexer';
 import { DuplicateContentError } from './DuplicateContentError';
 import { Configuration } from './Configuration';
+import { ExcludeChecker } from './ExcludeChecker';
 
 export class Plugin implements vscode.Disposable {
     /**
@@ -35,12 +37,20 @@ export class Plugin implements vscode.Disposable {
     private indexed: boolean = false;
     
     /**
+     * Exclude checker instance
+     * 
+     * @private
+     */
+    private excludeChecker: ExcludeChecker;
+    
+    /**
      * Creates an instance of Plugin.
      * @param configuration 
      */
     public constructor(configuration: Configuration) {
         this.configuration = configuration;
         this.indexer = new Indexer(configuration.expressionReferences, configuration.useCreationDateForFileHash);
+        this.excludeChecker = new ExcludeChecker(vscode.workspace.rootPath, configuration.excludeGlobs, configuration.useGitIgnoreForExclude);
         this.watchers = this.configuration.extensions.map(ext => vscode.workspace.createFileSystemWatcher(`**/*.${ext}`));
         for (const watcher of this.watchers) {
             watcher.onDidChange(this.onDidChange, this);
@@ -55,12 +65,11 @@ export class Plugin implements vscode.Disposable {
      * @returns 
      */
     public async init(): Promise<void> {
-        const excludedRegexp = this.configuration.excludedRegexp ? new RegExp(this.configuration.excludedRegexp) : undefined;
         const filesWithSameContent: string[] = [];
         await Promise.all(this.configuration.extensions.map(async ext => {
             const files = await vscode.workspace.findFiles(`**/*.${ext}`, "**/node_modules/**", 100000)
             for (const file of files) {
-                if (excludedRegexp && excludedRegexp.test(file.fsPath)) {
+                if (this.excludeChecker.isFileExcluded(file.fsPath)) {
                     continue;
                 }
                 try {
@@ -103,8 +112,7 @@ export class Plugin implements vscode.Disposable {
         if (!this.indexed) {
             return;
         }
-        const excludedRegexp = this.configuration.excludedRegexp ? new RegExp(this.configuration.excludedRegexp) : undefined;
-        if (excludedRegexp && excludedRegexp.test(uri.fsPath)) {
+        if (this.excludeChecker.isFileExcluded(uri.fsPath)) {
             return;
         }
         try {
@@ -131,8 +139,7 @@ export class Plugin implements vscode.Disposable {
             return;
         }
         const newPath = uri.fsPath;
-        const excludedRegexp = this.configuration.excludedRegexp ? new RegExp(this.configuration.excludedRegexp) : undefined;
-        if (excludedRegexp && excludedRegexp.test(newPath)) {
+        if (this.excludeChecker.isFileExcluded(newPath)) {
             return;
         }
         if (this.indexer.isMovedPath(newPath)) {
@@ -204,8 +211,7 @@ export class Plugin implements vscode.Disposable {
         if (!this.indexed) {
             return;
         }
-        const excludedRegexp = this.configuration.excludedRegexp ? new RegExp(this.configuration.excludedRegexp) : undefined;
-        if (excludedRegexp && excludedRegexp.test(uri.fsPath)) {
+        if (this.excludeChecker.isFileExcluded(uri.fsPath)) {
             return;
         }
         this.indexer.cleanPath(uri.fsPath);

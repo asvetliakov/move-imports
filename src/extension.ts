@@ -15,7 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
     const pluginConf = new Configuration();
     const conf = vscode.workspace.getConfiguration("move-imports");
     pluginConf.confirmMoveReferences = conf.get<boolean>("confirmMoveReferences", true);
-    pluginConf.excludedRegexp = conf.get<string | undefined>("excludedRegexp", "/node_modules/");
+    pluginConf.excludeGlobs = conf.get<string[]>("excludeGlobs");
+    pluginConf.useGitIgnoreForExclude = conf.get<boolean>("useGitIgnoreForExclude");
     pluginConf.expressionReferences = conf.get<string[]>("expressionReferences", ["require", "jest.mock", "jest.setMock", "jest.unmock", "jest.genMockFromModule"]);
     pluginConf.extensions = conf.get<string[]>("extensions", ["tsx", "ts", "jsx", "js"]);
     pluginConf.useCreationDateForFileHash = conf.get<boolean>("useCreationDateForHash", false);

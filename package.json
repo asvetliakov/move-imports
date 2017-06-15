@@ -29,17 +29,36 @@
       "properties": {
         "move-imports.extensions": {
           "type": "array",
-          "default": ["tsx", "ts", "jsx", "js"],
+          "default": [
+            "tsx",
+            "ts",
+            "jsx",
+            "js"
+          ],
           "description": "Specifiy file extensions which will be handled by plugin. References in imports to these files will be automatically renamed when these files were renamed. Webpack users may put asset file extensions here. Note: reference renaming will be available only in ts/js files"
         },
-        "move-imports.excludedRegexp": {
-          "type": ["string", "null"],
-          "default": "/node_modules/",
-          "description": "Regexp to exclude specific files/directories. Matched against full file path"
+        "move-imports.excludeGlobs": {
+          "type": "array",
+          "default": [
+            "node_modules",
+            "jspm_modules"
+          ],
+          "description": "Glob paths to exclude"
+        },
+        "move-imports.useGitIgnoreForExclude": {
+          "type": "boolean",
+          "default": true,
+          "description": "Read .gitignore in root directory and use it for excluded files"
         },
         "move-imports.expressionReferences": {
           "type": "array",
-          "default": ["require", "jest.mock", "jest.setMock", "jest.unmock", "jest.genMockFromModule"],
+          "default": [
+            "require",
+            "jest.mock",
+            "jest.setMock",
+            "jest.unmock",
+            "jest.genMockFromModule"
+          ],
           "description": "Also rename imports in these call expressions. The first argument must be import name"
         },
         "move-imports.useCreationDateForHash": {
@@ -67,14 +86,16 @@
     "test": "node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^6.0.40",
-    "mocha": "^2.3.3",
-    "typescript": "^2.3.2",
-    "vscode": "^1.0.0"
+    "@types/micromatch": "^2.3.29",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^7.0.31",
+    "mocha": "^3.4.2",
+    "typescript": "^2.3.4",
+    "vscode": "^1.1.0"
   },
   "dependencies": {
     "md5-file": "^3.1.1",
-    "typescript": "^2.3.2"
+    "micromatch": "^3.0.3",
+    "typescript": "^2.3.4"
   }
 }
