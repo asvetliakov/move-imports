@@ -115,9 +115,9 @@ export class Indexer {
             
             const firstNode = tsSourceFile.getChildAt(0);
             const parseNode = (node: ts.Node): void => {
-                if (node.kind === ts.SyntaxKind.ImportDeclaration) {
-                    // handle all kinds of ES6/TS imports
-                    if ((node as ts.ImportDeclaration).moduleSpecifier.kind === ts.SyntaxKind.StringLiteral) {
+                if (node.kind === ts.SyntaxKind.ImportDeclaration || node.kind === ts.SyntaxKind.ExportDeclaration) {
+                    // handle all kinds of ES6/TS imports or re-exports
+                    if ((node as ts.ImportDeclaration | ts.ExportDeclaration).moduleSpecifier.kind === ts.SyntaxKind.StringLiteral) {
                         const referenceModulePath = ((node as ts.ImportDeclaration).moduleSpecifier as ts.StringLiteral).text;
                         const startLineAndCharacter = ts.getLineAndCharacterOfPosition(tsSourceFile, (node as ts.ImportDeclaration).moduleSpecifier.getStart());
                         const endLineAndCharacter = ts.getLineAndCharacterOfPosition(tsSourceFile, (node as ts.ImportDeclaration).moduleSpecifier.getEnd());
