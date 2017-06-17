@@ -219,16 +219,14 @@ export class Indexer {
             delete this.fileReferencesMap[oldFilePath];
         }
 
-        // we're not updating module references to this file because we'll create text edits for these files
-        // The module references will be updated when user will save these edits
-        
-        // get references to this file from other files
+        // update & get references to this file from other files
         const references: Reference[] = [];
         for (const key of Object.keys(this.fileReferencesMap)) {
             const refs = this.fileReferencesMap[key];
             if (refs) {
                 for (const ref of refs) {
                     if (ref.referenceFilePath === oldFilePath) {
+                        ref.referenceFilePath = newPath;
                         references.push(ref);
                     }
                 }

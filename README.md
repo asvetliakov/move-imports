@@ -40,6 +40,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+# [0.0.7]
+* Fixed incorrect reference paths in files inside moved directory, for ex. ```import { A } from "../a"``` in ```./__tests__/a_spec``` and moving directory with both ```a``` and ```./__tests__/a_spec```
+
 # [0.0.6]
 
 * Fixed issue when negative glob pattern (i.e. !myfile.ts) is excluding all files
