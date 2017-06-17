@@ -8,7 +8,17 @@
         ],
         "sourceMap": true,
         "rootDir": ".",
-        "allowJs": true
+        "allowJs": true,
+        "typeRoots": [
+            "types",
+            "node_modules/@types"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "types/*"
+            ]
+        }
     },
     "exclude": [
         "node_modules",
