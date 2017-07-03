@@ -199,7 +199,7 @@ export class Plugin implements vscode.Disposable {
                                 newRelative = `./${newRelative}`;
                             }
                             // fix windows paths
-                            newRelative = newRelative.replace("\\", "/");
+                            newRelative = newRelative.replace(/\\/g, "/");
                             // character +(-) 1 for preserving '"`
                             return vscode.TextEdit.replace(new vscode.Range(ref.start.line, ref.start.character + 1, ref.end.line, ref.end.character - 1), newRelative);
                         });
