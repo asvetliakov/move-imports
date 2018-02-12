@@ -1,0 +1,15 @@
+{
+    "extends": [
+        "tslint:latest"
+    ],
+    "defaultSeverity": "warning",
+    "rules": {
+        "no-implicit-dependencies": [
+            true,
+            "dev"
+        ],
+        "interface-name": false,
+        "object-literal-sort-keys": false,
+        "max-line-length": [true, 180]
+    }
+}

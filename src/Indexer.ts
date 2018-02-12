@@ -40,39 +40,39 @@ export interface Reference {
 export class Indexer {
     /**
      * Map of Md5 hash of file content -> file path
-     * 
+     *
      * @private
      */
     private hashToFile: { [key: string]: string | undefined } = {};
-    
+
     /**
      * Map of file path -> MD5 hash of the file content
-     * 
+     *
      * @private
      */
     private fileToHash: { [key: string]: string | undefined } = {};
-    
+
     /**
      * Map file path -> references array
-     * 
+     *
      * @private
      */
     private fileReferencesMap: { [key: string]: Reference[] | undefined } = {};
-    
+
     /**
      * True to prepend file's birthtime in content hash
-     * 
+     *
      * @private
      */
     private useBirthtimeForContentHash: boolean = false;
-    
+
     /**
      * Array of expressions to also include when moving module references. Example: require, jest.mock, jest.dontMock, etc...
-     * 
+     *
      * @private
      */
     private expressionReferences: string[] = [];
-    
+
     /**
      * Creates an instance of Indexer.
      * @param expressionReferences Array of expressions to include when moving module references
@@ -82,10 +82,10 @@ export class Indexer {
         this.expressionReferences = expressionReferences;
         this.useBirthtimeForContentHash = useBirthtimeForContentHash;
     }
-    
+
     /**
      * Index file and extract references
-     * 
+     *
      * @param path Path to file
      * @returns void
      */
@@ -107,12 +107,12 @@ export class Indexer {
         // store new hash <-> file mappings
         this.fileToHash[path] = newContentHash;
         this.hashToFile[newContentHash] = path;
-        
+
         if (this.isPathJSTSLike(path)) {
             const source = fs.readFileSync(path, "utf8");
             const tsSourceFile = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
             const references: Reference[] = [];
-            
+
             const firstNode = tsSourceFile.getChildAt(0);
             const parseNode = (node: ts.Node): void => {
                 if (node.kind === ts.SyntaxKind.ImportDeclaration || node.kind === ts.SyntaxKind.ExportDeclaration) {
@@ -181,24 +181,24 @@ export class Indexer {
             this.fileReferencesMap[path] = references;
         }
     }
-    
+
     /**
      * Check if path was moved from one place to other. This will calculate content hash and check if we have already one
      * If check succesfull, then it's likely the existing file was moved from one place to other
-     * 
-     * @param path 
-     * @returns 
+     *
+     * @param path
+     * @returns
      */
     public isMovedPath(path: string): boolean {
         const hash = this.calculateHashForPath(path);
         return !!(this.hashToFile[hash]);
     }
-    
+
     /**
      * Update old path to new path and get references for this path
-     * 
-     * @param newPath 
-     * @returns 
+     *
+     * @param newPath
+     * @returns
      */
     public updateAndGetReferences(newPath: string): Reference[] | undefined {
         const hash = this.calculateHashForPath(newPath);
@@ -215,7 +215,7 @@ export class Indexer {
 
         if (this.fileReferencesMap[oldFilePath]) {
             // Update file reference map
-            this.fileReferencesMap[newPath] = this.fileReferencesMap[oldFilePath].map(ref => ({ ...ref, sourceFilePath: newPath }));
+            this.fileReferencesMap[newPath] = this.fileReferencesMap[oldFilePath].map((ref) => ({ ...ref, sourceFilePath: newPath }));
             delete this.fileReferencesMap[oldFilePath];
         }
 
@@ -237,11 +237,11 @@ export class Indexer {
         references.push(...this.fileReferencesMap[newPath]);
         return references;
     }
-    
+
     /**
      * Clean path
-     * 
-     * @param path 
+     *
+     * @param path
      */
     public cleanPath(path: string): void {
         const hash = this.calculateHashForPath(path);
@@ -255,13 +255,13 @@ export class Indexer {
             delete this.fileReferencesMap[path];
         }
     }
-    
+
     /**
      * Calculate content hash for file in the path
-     * 
+     *
      * @private
-     * @param path 
-     * @returns 
+     * @param path
+     * @returns
      */
     private calculateHashForPath(path: string): string {
         // Calculate hash
@@ -275,15 +275,15 @@ export class Indexer {
         }
         return hash;
     }
-    
-    
+
+
     /**
      * Return true if we need to process given call expression further.
      * This will check expression identifier against this.expressionReferences array
      *
      * @private
-     * @param expression 
-     * @returns 
+     * @param expression
+     * @returns
      */
     private shouldProcessCallExpression(expression: ts.CallExpression): boolean {
         // this will give full expression name, such as require, jest.mock, a.b.c, etc...
@@ -294,10 +294,10 @@ export class Indexer {
             && firstArg
             && (firstArg.kind === ts.SyntaxKind.StringLiteral || firstArg.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral));
     }
-    
+
     /**
      * Get relative module reference from call expression
-     * 
+     *
      * @private
      * @param expression Call expression
      * @returns Relative module reference or undefined if module reference is not relative
@@ -305,11 +305,11 @@ export class Indexer {
     private getRelativeReferenceFromCallExpression(expression: ts.CallExpression): { path: string, start: ts.LineAndCharacter, end: ts.LineAndCharacter } | undefined {
         const firstArg = expression.arguments[0] as ts.StringLiteral;
         const modulePath = firstArg.text;
-        
+
         if (!this.isModulePathRelative(modulePath)) {
             return undefined;
         }
-        
+
         return {
             path: modulePath,
             start: ts.getLineAndCharacterOfPosition(expression.getSourceFile(), firstArg.getStart()),
@@ -319,33 +319,33 @@ export class Indexer {
 
     /**
      * Return true if file is javascript/typescript like
-     * 
+     *
      * @private
-     * @param path 
-     * @returns 
+     * @param path
+     * @returns
      */
     private isPathJSTSLike(path: string): boolean {
         return /\.(js|jsx|ts|tsx)$/.test(path);
     }
-    
+
     /**
      * Return true if given path is relative
-     * 
+     *
      * @private
-     * @param path 
-     * @returns 
+     * @param path
+     * @returns
      */
     private isModulePathRelative(path: string): boolean {
         return (path.startsWith("./") || path.startsWith("../"));
     }
-    
+
     /**
      * Return full path of referenced module
-     * 
+     *
      * @private
-     * @param fromPath 
-     * @param referencePath 
-     * @returns 
+     * @param fromPath
+     * @param referencePath
+     * @returns
      */
     private getFullPathOfReferencedModule(fromPath: string, referencePath: string): { path: string, hasExtInPath: boolean, isDirectory: boolean } {
         let fullPath = nodePath.resolve(nodePath.dirname(fromPath), referencePath);
@@ -379,5 +379,5 @@ export class Indexer {
             hasExtInPath: hasExtensionInPath,
             isDirectory: isDirectoryReference
         };
-    }    
+    }
 }

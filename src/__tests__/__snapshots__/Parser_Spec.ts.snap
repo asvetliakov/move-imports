@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Returns references for require-like calls if they are defined as expression references 1`] = `
+Array [
+  Object {
+    "end": Object {
+      "character": 15,
+      "line": 1,
+    },
+    "path": "a",
+    "start": Object {
+      "character": 12,
+      "line": 1,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 25,
+      "line": 2,
+    },
+    "path": "b",
+    "start": Object {
+      "character": 22,
+      "line": 2,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 32,
+      "line": 3,
+    },
+    "path": "../c",
+    "start": Object {
+      "character": 26,
+      "line": 3,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 25,
+      "line": 4,
+    },
+    "path": "d",
+    "start": Object {
+      "character": 22,
+      "line": 4,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 29,
+      "line": 5,
+    },
+    "path": "./e",
+    "start": Object {
+      "character": 24,
+      "line": 5,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 23,
+      "line": 7,
+    },
+    "path": "aa",
+    "start": Object {
+      "character": 19,
+      "line": 7,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 17,
+      "line": 11,
+    },
+    "path": "a",
+    "start": Object {
+      "character": 14,
+      "line": 11,
+    },
+  },
+]
+`;
+
+exports[`Skips syntax errors 1`] = `
+Array [
+  Object {
+    "end": Object {
+      "character": 23,
+      "line": 1,
+    },
+    "path": "./a",
+    "start": Object {
+      "character": 18,
+      "line": 1,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 26,
+      "line": 3,
+    },
+    "path": "./c",
+    "start": Object {
+      "character": 21,
+      "line": 3,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 25,
+      "line": 6,
+    },
+    "path": "../aa",
+    "start": Object {
+      "character": 18,
+      "line": 6,
+    },
+  },
+]
+`;
+
+exports[`returns references for es6 imports and re-exports 1`] = `
+Array [
+  Object {
+    "end": Object {
+      "character": 23,
+      "line": 1,
+    },
+    "path": "./a",
+    "start": Object {
+      "character": 18,
+      "line": 1,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 28,
+      "line": 2,
+    },
+    "path": "b",
+    "start": Object {
+      "character": 25,
+      "line": 2,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 29,
+      "line": 3,
+    },
+    "path": "../c",
+    "start": Object {
+      "character": 23,
+      "line": 3,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 41,
+      "line": 4,
+    },
+    "path": "d/test",
+    "start": Object {
+      "character": 33,
+      "line": 4,
+    },
+  },
+  Object {
+    "end": Object {
+      "character": 23,
+      "line": 9,
+    },
+    "path": "./e",
+    "start": Object {
+      "character": 18,
+      "line": 9,
+    },
+  },
+]
+`;

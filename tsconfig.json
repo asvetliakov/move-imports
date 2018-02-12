@@ -1,14 +1,19 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es6",
+        "target": "es2015",
         "outDir": "out",
         "lib": [
-            "es6"
+            "es2015",
+            "es2016.array.include"
         ],
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "sourceMap": true,
         "rootDir": ".",
         "allowJs": true,
+        "strict": true,
         "typeRoots": [
             "types",
             "node_modules/@types"
@@ -18,7 +23,12 @@
             "*": [
                 "types/*"
             ]
-        }
+        },
+        "plugins": [
+            {
+                "name": "typescript-snapshots-plugin"
+            }
+        ]
     },
     "exclude": [
         "node_modules",

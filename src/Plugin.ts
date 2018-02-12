@@ -10,42 +10,42 @@ import { ExcludeChecker } from './ExcludeChecker';
 export class Plugin implements vscode.Disposable {
     /**
      * Configuration object
-     * 
+     *
      * @private
      */
     private configuration: Configuration;
-    
+
     /**
      * Indexer
-     * 
+     *
      * @private
      */
     private indexer: Indexer;
-    
+
     /**
      * File watchers
-     * 
+     *
      * @private
      */
     private watchers: vscode.FileSystemWatcher[] = [];
-    
+
     /**
      * First index flag
-     * 
+     *
      * @private
      */
     private indexed: boolean = false;
-    
+
     /**
      * Exclude checker instance
-     * 
+     *
      * @private
      */
     private excludeChecker: ExcludeChecker;
-    
+
     /**
      * Creates an instance of Plugin.
-     * @param configuration 
+     * @param configuration
      */
     public constructor(configuration: Configuration) {
         this.configuration = configuration;
@@ -58,11 +58,11 @@ export class Plugin implements vscode.Disposable {
             watcher.onDidDelete(this.onDidDelete, this);
         }
     }
-    
+
     /**
      * Init & Index files in project
-     * 
-     * @returns 
+     *
+     * @returns
      */
     public async init(): Promise<void> {
         const filesWithSameContent: string[] = [];
@@ -100,13 +100,13 @@ export class Plugin implements vscode.Disposable {
             watcher.dispose();
         }
     }
-    
+
     /**
      * File content was changed. Either external change / content change after editing
-     * 
+     *
      * @protected
-     * @param uri 
-     * @returns 
+     * @param uri
+     * @returns
      */
     protected onDidChange(uri: vscode.Uri): void {
         if (!this.indexed) {
@@ -123,16 +123,16 @@ export class Plugin implements vscode.Disposable {
             }
         }
     }
-    
+
     /**
      * New file created.
      * Notes:
      * 1) Renaming single file -> vscode calls onDidCreate() then onDidDelete()
      * 2) Renaming folder -> vscode calls only onDidCreate() for new files
-     * 
+     *
      * @protected
-     * @param uri 
-     * @returns 
+     * @param uri
+     * @returns
      */
     protected async onDidCreate(uri: vscode.Uri): Promise<void> {
         if (!this.indexed) {
@@ -164,7 +164,7 @@ export class Plugin implements vscode.Disposable {
                         }
                         const uri = vscode.Uri.file(filePath);
                         const edits = sortedReferences[filePath].map(ref => {
-                            // Pick the right path, here we can update reference to other files in moved path (true branch) 
+                            // Pick the right path, here we can update reference to other files in moved path (true branch)
                             // or update reference in other files referenced to this moved path (false branch)
                             const referenceToUpdatePath = ref.sourceFilePath === newPath ? ref.referenceFilePath : newPath;
                             // Directory relative path
@@ -178,7 +178,7 @@ export class Plugin implements vscode.Disposable {
                             );
 
                             let newRelative: string;
-                                
+
                             if (ref.isDirectoryReference) {
                                 // Two cases:
                                 // 1. Move index.ext to new location
@@ -193,7 +193,7 @@ export class Plugin implements vscode.Disposable {
                             } else {
                                 newRelative = newRelativeToFile;
                             }
-                            
+
                             // If newRelative will point to the same directory then ./ will be dropped, add it again
                             if (!newRelative.startsWith("./") && !newRelative.startsWith("../")) {
                                 newRelative = `./${newRelative}`;
@@ -227,13 +227,13 @@ export class Plugin implements vscode.Disposable {
             }
         }
     }
-    
+
     /**
      * File was deleted
-     * 
+     *
      * @protected
-     * @param uri 
-     * @returns 
+     * @param uri
+     * @returns
      */
     protected onDidDelete(uri: vscode.Uri): void {
         if (!this.indexed) {
@@ -244,13 +244,13 @@ export class Plugin implements vscode.Disposable {
         }
         this.indexer.cleanPath(uri.fsPath);
     }
-    
+
     /**
      * Display "same content found" message and ask user to open these files
-     * 
+     *
      * @private
-     * @param files 
-     * @returns 
+     * @param files
+     * @returns
      */
     private async askToOpenMatchingFiles(files: string[]): Promise<void> {
         if (!this.configuration.warnAboutSameContentFiles) {
@@ -278,14 +278,14 @@ export class Plugin implements vscode.Disposable {
             }
         }
     }
-    
+
     /**
      * Ask for editing
-     * 
+     *
      * @private
-     * @param fileName 
-     * @param referencesCount 
-     * @returns 
+     * @param fileName
+     * @param referencesCount
+     * @returns
      */
     private async askForReferenceConfirmation(fileName: string, referencesCount: number): Promise<boolean> {
         if (!this.configuration.confirmMoveReferences) {
