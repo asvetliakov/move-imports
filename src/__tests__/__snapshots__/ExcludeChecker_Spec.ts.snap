@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Returns globs 1`] = `
+Array [
+  "node_modules",
+  "jspm_modules",
+  "a",
+  "b/*",
+  "!b/c.js",
+  "node_modules",
+  "**/c",
+  "**/index.*",
+  "e/*",
+  "!e/e.js",
+]
+`;
+
+exports[`Returns globs 2`] = `
+Array [
+  "!node_modules",
+  "!jspm_modules",
+  "!a",
+  "!b/*",
+  "b/c.js",
+  "!node_modules",
+  "!**/c",
+  "!**/index.*",
+  "!e/*",
+  "e/e.js",
+]
+`;

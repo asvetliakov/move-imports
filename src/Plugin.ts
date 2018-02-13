@@ -50,6 +50,7 @@ export class Plugin implements vscode.Disposable {
     public constructor(configuration: Configuration) {
         this.configuration = configuration;
         this.indexer = new Indexer(configuration.expressionReferences, configuration.useCreationDateForFileHash);
+        vscode.workspace.
         this.excludeChecker = new ExcludeChecker(vscode.workspace.rootPath, configuration.excludeGlobs, configuration.useGitIgnoreForExclude);
         this.watchers = this.configuration.extensions.map(ext => vscode.workspace.createFileSystemWatcher(`**/*.${ext}`));
         for (const watcher of this.watchers) {
@@ -85,7 +86,7 @@ export class Plugin implements vscode.Disposable {
                     }
                 }
             }
-        }))
+        }));
         this.indexed = true;
         if (filesWithSameContent.length > 0) {
             await this.askToOpenMatchingFiles(filesWithSameContent);

@@ -105,6 +105,16 @@ export class FileHashRegistry {
     }
 
     /**
+     * Return all files with given prefix, usually prefix will be workspace root
+     *
+     * @param prefix
+     * @returns
+     */
+    public getAllFilesWithPrefix(prefix: string): string[] {
+        return [...this.fileToHash.keys()].filter(f => f.startsWith(prefix));
+    }
+
+    /**
      * Calculate hash for the given path
      *
      * @param path

@@ -1,107 +1,97 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as micromatch from "micromatch";
+import fs from "fs";
+import ignore from "ignore";
+import path from "path";
+
+// because interface is not exported
+interface Ignore {
+    add(pattern: string | Ignore | string[] | Ignore[]): Ignore;
+    filter(paths: string[]): Ignore;
+    createFilter(): (path: string) => Ignore;
+    ignores(pathname: string): boolean;
+}
 
 export class ExcludeChecker {
-    
     /**
-     * Globs specified in configuration
-     * 
-     * @private
+     * Globs specified in gitignore, normalized
      */
-    private confGlobs: string[];
-    
-    /**
-     * Globs specified in gitignore
-     * 
-     * @private
-     */
-    private gitIgnoreGlobs: string[];
-    
+    private gitIgnoreGlobs: string[] = [];
+
     /**
      * Workspace root
-     * 
-     * @private
      */
-    private workspaceRoot: string | undefined;
-    
+    private workspaceRoot: string;
+
+    /**
+     * Ignore globs specified in configuration
+     */
+    private confGlobs: string[] = [];
+
+    /**
+     * Ignore instance
+     */
+    private ignore: Ignore;
+
     /**
      * Creates an instance of ExcludeChecker.
-     * @param workspaceRoot 
-     * @param globs 
-     * @param [readGitIgnore=true] 
+     *
+     * @param workspaceRoot
+     * @param confGlobs
+     * @param readGitIgnore
      */
-    public constructor(workspaceRoot: string | undefined, globs: string[], readGitIgnore: boolean = true) {
+    public constructor(workspaceRoot: string, confGlobs: string[]) {
         this.workspaceRoot = workspaceRoot;
-        // normalize configuration globs too
-        this.confGlobs = globs.map(this.normalizeExcludeGlob);
-        this.gitIgnoreGlobs = [];
-        if (workspaceRoot && readGitIgnore && fs.existsSync(path.join(workspaceRoot, ".gitignore"))) {
-            try {
-                const gitIgnoreLines = fs.readFileSync(path.join(workspaceRoot, ".gitignore"), "utf8").replace(/\r\n/g, "\n").split("\n");;
-                for (const line of gitIgnoreLines) {
-                    // Skip empty lines
-                    if (line.trim() === "") {
-                        continue;
-                    }
-                    // skip comments
-                    if (/^\s*#.*/.test(line)) {
-                        continue;
-                    }
-                    this.gitIgnoreGlobs.push(this.normalizeExcludeGlob(line.trim()));
-                }
-            } catch (e) {
-                // ignore
-            }
-        }
-    }
-    
-    /**
-     * Return full list of excluded files globls
-     * 
-     * @readonly
-     */
-    public get excludeGlobs(): string[] {
-        return [
-            ...this.gitIgnoreGlobs,
-            ...this.confGlobs
-        ];
-    }
-    
-    /**
-     * Return true if given file path is excluded either by gitignore or configuration ignore
-     * 
-     * @param filePath 
-     * @returns 
-     */
-    public isFileExcluded(filePath: string): boolean {
-        const relativePath = path.isAbsolute(filePath) ? path.relative(this.workspaceRoot, filePath) : filePath;
-        return micromatch.every(relativePath, this.excludeGlobs, { matchBase: true });
-    }
-    
-    /**
-     * Convert exclude glob pattern to understand by micromatch.
-     * This needed since glob rules in gitignore and in micromatch are different,
-     * i.e node_modules must be node_modules/** to work
-     * Rules:
-     * * Paths without extensions are being treated as directories
-     * * "**" will be added to directories without them
-     * * Paths with extensions will be leaved as is
-     * 
-     * @private
-     * @param exclude 
-     * @returns 
-     */
-    private normalizeExcludeGlob(exclude: string): string {
-        // Skip globs with extension part
-        if (/.*\..*/.test(exclude)) {
-            return exclude;
-        }
-        // Skip dir*, dir/*, dir**, dir/**
-        if (exclude.endsWith("*")) {
-            return exclude;
-        }
-        return exclude.endsWith("/") ? exclude + "**" : exclude + "/**"
+        this.confGlobs = confGlobs;
+        this.ignore = ignore().add(confGlobs);
     }
 
+    /**
+     * Read git ignore file
+     */
+    public async readGitIgnoreExcludes(): Promise<void> {
+        try {
+            const lines = await new Promise<string>((res, rej) =>
+                fs.readFile(path.resolve(this.workspaceRoot, ".gitignore"), "utf8", (e, data) => e ? rej(e) : res(data)),
+            );
+            for (const line of lines.replace(/\r\n/g, "\n").split("\n")) {
+                // Skip empty lines
+                if (line.trim() === "") {
+                    continue;
+                }
+                // skip comments
+                if (/^\s*#.*/.test(line)) {
+                    continue;
+                }
+                this.gitIgnoreGlobs.push(line.trim());
+            }
+            if (this.gitIgnoreGlobs.length > 0) {
+                this.ignore.add(this.gitIgnoreGlobs);
+            }
+        } catch {
+            // ignore for now
+        }
+    }
+
+    /**
+     * Return full list of ignore globs
+     *
+     * @param inverted
+     */
+    public getIgnoreGlobs(inverted: boolean = false): string[] {
+        const ignores = [...this.confGlobs, ...this.gitIgnoreGlobs];
+        return inverted ? ignores.map(i => i.startsWith("!") ? i.substr(1) : "!" + i) : ignores;
+    }
+
+    /**
+     * Return true if given file path is excluded either by gitignore or configuration ignore
+     *
+     * @param filePath
+     * @returns
+     */
+    public isFileExcluded(filePath: string): boolean {
+        // convert to relative path -> /a/b/c.js -> b/c.js if workspace root is /a, need for ignore
+        if (filePath.startsWith(this.workspaceRoot)) {
+            filePath = path.relative(this.workspaceRoot, filePath);
+        }
+        return this.ignore.ignores(filePath);
+    }
 }

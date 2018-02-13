@@ -92,3 +92,24 @@ it("Deletes hash for the file", async () => {
     expect(registry.fileToHashT.size).toBe(0);
     expect(registry.hashToFileT.size).toBe(0);
 });
+
+it("Returns all file names for given prefix", async () => {
+    const names = [
+        "/a.ts",
+        "/aa.ts",
+        "/aaa.ts",
+        "/b.ts",
+        "/u/a/a.ts",
+        "/u/a/b.ts",
+        "/u/a/c.ts",
+    ];
+    // tslint:disable-next-line:no-object-literal-type-assertion
+    fsMock(names.reduce((obj, name) => { obj[name] = "Some content - " + name; return obj; }, {} as { [key: string]: string }));
+    await Promise.all(names.map(n => registry.calculateHashForNewFile(n)));
+
+    expect(registry.getAllFilesWithPrefix("/a")).toEqual(["/a.ts", "/aa.ts", "/aaa.ts"]);
+    expect(registry.getAllFilesWithPrefix("/b")).toEqual(["/b.ts"]);
+    expect(registry.getAllFilesWithPrefix("/c")).toEqual([]);
+    expect(registry.getAllFilesWithPrefix("/u/c")).toEqual([]);
+    expect(registry.getAllFilesWithPrefix("/u/a")).toEqual(["/u/a/a.ts", "/u/a/b.ts", "/u/a/c.ts"]);
+});

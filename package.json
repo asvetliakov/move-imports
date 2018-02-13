@@ -5,7 +5,7 @@
   "version": "0.0.9",
   "publisher": "asvetliakov",
   "engines": {
-    "vscode": "^1.12.0"
+    "vscode": "^1.20.0"
   },
   "repository": {
     "type": "git",
@@ -86,14 +86,12 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@types/globby": "^6.1.0",
     "@types/jest": "^22.1.2",
-    "@types/micromatch": "^3.1.0",
-    "@types/mocha": "^2.2.41",
     "@types/mock-fs": "^3.6.30",
     "@types/node": "^9.4.4",
     "jest": "^22.2.2",
     "jest-create-mock-instance": "^1.0.2",
-    "mocha": "^3.4.2",
     "mock-fs": "^4.4.2",
     "ts-jest": "^22.0.3",
     "tslint": "^5.9.1",
@@ -101,8 +99,10 @@
     "vscode": "^1.1.0"
   },
   "dependencies": {
+    "globby": "^7.1.1",
+    "ignore": "^3.3.7",
     "md5-file": "^3.1.1",
-    "micromatch": "^3.0.3",
-    "typescript": "^2.7.1"
+    "typescript": "^2.7.1",
+    "vscode-languageserver": "^3.5.0"
   }
 }
